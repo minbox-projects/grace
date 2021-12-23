@@ -3,12 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <parent>
+        <groupId>org.minbox.framework</groupId>
+        <artifactId>minbox-parent</artifactId>
+        <version>1.0.6</version>
+        <relativePath/>
+    </parent>
     <groupId>org.minbox.framework</groupId>
     <artifactId>grace</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <version>${revision}</version>
+    <modules>
+        <module>grace-bom</module>
+        <module>grace-core</module>
+        <module>grace-processor</module>
+        <module>grace-expression</module>
+    </modules>
 
     <properties>
+        <revision>1.0-SNAPSHOT</revision>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
