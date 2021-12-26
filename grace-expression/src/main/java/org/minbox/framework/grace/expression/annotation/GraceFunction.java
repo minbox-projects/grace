@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface GraceExpressionFunction {
+public @interface GraceFunction {
     /**
      * 是否在目标函数之前执行
      *
