@@ -13,8 +13,6 @@ import org.minbox.framework.grace.processor.GraceLogObject;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.util.ObjectUtils;
@@ -30,13 +28,12 @@ import java.util.Map;
  * @author 恒宇少年
  */
 @Slf4j
-public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFactoryAware, ApplicationContextAware {
+public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFactoryAware {
     /**
      * The bean name of the current class registered in the ioc
      */
     public static final String BEAN_NAME = GraceRecorderMethodInterceptor.class.getSimpleName();
     private BeanFactoryResolver beanFactoryResolver;
-    private ApplicationContext applicationContext;
 
     /**
      * 执行目标方法切面业务逻辑处理
@@ -96,10 +93,5 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
         if (!ObjectUtils.isEmpty(beanFactory) && ObjectUtils.isEmpty(this.beanFactoryResolver)) {
             this.beanFactoryResolver = new BeanFactoryResolver(beanFactory);
         }
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }
