@@ -10,6 +10,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -43,7 +44,7 @@ public class ExpressionFunctionFactory implements InitializingBean, ApplicationC
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         List<Class<?>> filteredBeanClassList =
                 Arrays.stream(beanNames).map(beanName -> applicationContext.getBean(beanName).getClass())
-                        .filter(beanClass -> beanClass.isAnnotationPresent(GraceFunctionDefiner.class))
+                        .filter(beanClass -> !ObjectUtils.isEmpty(AnnotationUtils.findAnnotation(beanClass, GraceFunctionDefiner.class)))
                         .collect(Collectors.toList());
         filteredBeanClassList.stream().forEach(beanClass -> {
             Method[] methods = ReflectionUtils.getAllDeclaredMethods(beanClass);
