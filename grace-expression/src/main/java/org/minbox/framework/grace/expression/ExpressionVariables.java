@@ -4,8 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 表达式变量封装实体
@@ -19,7 +19,7 @@ public class ExpressionVariables {
     /**
      * 线程安全的变量集合
      */
-    private final Map<String, Object> VARIABLE_MAP = new ConcurrentHashMap();
+    private final Map<String, Object> VARIABLE_MAP = new HashMap<>();
 
     /**
      * 添加变量到集合
@@ -66,7 +66,7 @@ public class ExpressionVariables {
      *
      * @return {@link ExpressionVariables}
      */
-    public static ExpressionVariables empty() {
+    public static ExpressionVariables initialize() {
         return new ExpressionVariables();
     }
 }

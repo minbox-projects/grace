@@ -58,7 +58,7 @@ public class GraceCachedExpressionEvaluator extends CachedExpressionEvaluator {
      * @param context             表达式解析时使用的上下文
      * @return 解析后的字符串
      */
-    public String parseExpression(String conditionExpression, AnnotatedElementKey elementKey, GraceEvaluationContext context) {
+    public <T> T parseExpression(Class<T> resultType, String conditionExpression, AnnotatedElementKey elementKey, GraceEvaluationContext context) {
         Map<String, ExpressionFunctionPackageObject> functionPackageObjectMap = ExpressionFunctionFactory.getAllCachedMethod();
         functionPackageObjectMap.keySet()
                 .stream().forEach(functionName -> {
@@ -66,6 +66,6 @@ public class GraceCachedExpressionEvaluator extends CachedExpressionEvaluator {
                     context.registerFunction(functionPackageObject.getFunctionName(), functionPackageObject.getMethod());
                 });
         Expression expression = getExpression(EXPRESSION_MAP, elementKey, conditionExpression);
-        return expression.getValue(context, String.class);
+        return expression.getValue(context, resultType);
     }
 }

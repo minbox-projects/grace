@@ -51,4 +51,9 @@ public class GraceRecordContext {
         }
         return variables;
     }
+
+    public static boolean isEmpty() {
+        Stack<ExpressionVariables> stack = VARIABLES_STACK_MAP.get();
+        return ObjectUtils.isEmpty(stack) || stack.empty();
+    }
 }
