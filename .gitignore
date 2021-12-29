@@ -2,6 +2,8 @@
 
 ### target ###
 target/
+### test ###
+*/src/test/java
 
 ### STS ###
 .apt_generated
