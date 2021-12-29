@@ -35,10 +35,12 @@
         <dependency>
             <groupId>org.minbox.framework</groupId>
             <artifactId>grace-expression</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.minbox.framework</groupId>
             <artifactId>grace-processor</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.minbox.framework</groupId>
