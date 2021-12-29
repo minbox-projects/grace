@@ -78,11 +78,16 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             variables.addVariables(parameterValueMap);
             GraceRecordContext.pushExpressionVariables(variables);
             result = invocation.proceed();
+            Map<String, Object> customizeVariables = GraceVariableContext.getCustomizeVariables();
+            if (!ObjectUtils.isEmpty(customizeVariables)) {
+                variables.addVariables(customizeVariables);
+            }
             variables.addVariable(GraceConstants.RESULT_VARIABLE_KEY, result);
         } catch (Exception e) {
             executionSucceed = false;
             throw e;
         } finally {
+            GraceVariableContext.remove();
             GraceCachedExpressionEvaluator evaluator = new GraceCachedExpressionEvaluator();
             ExpressionVariables variables = GraceRecordContext.popExpressionVariables();
             if (!ObjectUtils.isEmpty(operatorService) && !ObjectUtils.isEmpty(operatorService.getExtra())) {
