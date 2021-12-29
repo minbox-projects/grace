@@ -1,23 +1,21 @@
 package org.minbox.framework.grace.expression;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.minbox.framework.grace.expression.annotation.GraceFunction;
 import org.minbox.framework.grace.expression.annotation.GraceFunctionDefiner;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,10 +27,16 @@ import java.util.stream.Collectors;
  */
 @Order
 @Slf4j
-public class ExpressionFunctionFactory implements InitializingBean, ApplicationContextAware {
-    private ApplicationContext applicationContext;
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ExpressionFunctionFactory implements InitializingBean {
     private static final Map<String, ExpressionFunctionPackageObject> CACHED_METHOD_MAP = new HashMap();
     private static final String METHOD_FULL_NAME_FORMAT = "%s#%s";
+    private List<String> functionScanPackages;
+
+    public ExpressionFunctionFactory(List<String> functionScanPackages) {
+        this.functionScanPackages = functionScanPackages;
+        Assert.notNull(functionScanPackages, "表达式函数扫描包参数不可以为空.");
+    }
 
     /**
      * 加载项目中使用{@link GraceFunction}定义的函数并进行缓存
@@ -41,11 +45,7 @@ public class ExpressionFunctionFactory implements InitializingBean, ApplicationC
      * 所以需要判定类上是否定义了{@link GraceFunctionDefiner}，存在该注解再进行表达式函数的解析
      */
     private void loadDefineFunction() {
-        String[] beanNames = applicationContext.getBeanDefinitionNames();
-        List<Class<?>> filteredBeanClassList =
-                Arrays.stream(beanNames).map(beanName -> applicationContext.getBean(beanName).getClass())
-                        .filter(beanClass -> !ObjectUtils.isEmpty(AnnotationUtils.findAnnotation(beanClass, GraceFunctionDefiner.class)))
-                        .collect(Collectors.toList());
+        List<Class<?>> filteredBeanClassList = this.getFunctionDefinerClass();
         filteredBeanClassList.stream().forEach(beanClass -> {
             Method[] methods = ReflectionUtils.getAllDeclaredMethods(beanClass);
             for (Method method : methods) {
@@ -55,7 +55,7 @@ public class ExpressionFunctionFactory implements InitializingBean, ApplicationC
                         ExpressionFunctionPackageObject packageObject =
                                 ExpressionFunctionPackageObject.pack(method.getName(), method, function.isBeforeExecute());
                         CACHED_METHOD_MAP.put(method.getName(), packageObject);
-                        String methodFullName = String.format(METHOD_FULL_NAME_FORMAT, beanClass.getName(), method.getName());
+                        String methodFullName = String.format(METHOD_FULL_NAME_FORMAT, method.getDeclaringClass().getName(), method.getName());
                         log.debug("Grace表达式函数：{}，加载完成并已被缓存.", methodFullName);
                     }
                 } catch (Exception e) {
@@ -63,6 +63,28 @@ public class ExpressionFunctionFactory implements InitializingBean, ApplicationC
                 }
             }
         });
+    }
+
+    /**
+     * 获取定义{@link GraceFunctionDefiner}注解的类列表
+     * <p>
+     * 根据配置的多个根包名进行扫描符合条件的类
+     *
+     * @return 类列表
+     */
+    private List<Class<?>> getFunctionDefinerClass() {
+        Set<Class<?>> classSet = new HashSet<>();
+        functionScanPackages.stream().forEach(scanPackage -> {
+            try {
+                ClassScanner scanner = new ClassScanner(scanPackage, true);
+                classSet.addAll(scanner.doScanning());
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        });
+        return classSet.stream()
+                .filter(beanClass -> !ObjectUtils.isEmpty(AnnotationUtils.findAnnotation(beanClass, GraceFunctionDefiner.class)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -79,10 +101,5 @@ public class ExpressionFunctionFactory implements InitializingBean, ApplicationC
     @Override
     public void afterPropertiesSet() throws Exception {
         this.loadDefineFunction();
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 }
