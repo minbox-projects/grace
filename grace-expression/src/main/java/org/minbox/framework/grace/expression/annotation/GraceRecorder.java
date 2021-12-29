@@ -52,5 +52,5 @@ public @interface GraceRecorder {
      *
      * @return 用于对操作进行自定义分组，可以根据分组来处理不同的业务逻辑
      */
-    String category() default "";
+    String category();
 }
