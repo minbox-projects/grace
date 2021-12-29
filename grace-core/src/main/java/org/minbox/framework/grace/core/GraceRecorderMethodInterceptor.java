@@ -3,6 +3,7 @@ package org.minbox.framework.grace.core;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.minbox.framework.grace.core.operator.GraceLoadOperatorService;
 import org.minbox.framework.grace.core.resolve.GraceRecorderResolveProcessor;
 import org.minbox.framework.grace.expression.ExpressionVariables;
 import org.minbox.framework.grace.expression.GraceCachedExpressionEvaluator;
@@ -38,9 +39,12 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
     public static final String BEAN_NAME = GraceRecorderMethodInterceptor.class.getSimpleName();
     private BeanFactoryResolver beanFactoryResolver;
     private GraceLogStorageProcessor storageProcessor;
+    private GraceLoadOperatorService operatorService;
 
-    public GraceRecorderMethodInterceptor(ObjectProvider<GraceLogStorageProcessor> storageProcessorProvider) {
+    public GraceRecorderMethodInterceptor(ObjectProvider<GraceLogStorageProcessor> storageProcessorProvider,
+                                          ObjectProvider<GraceLoadOperatorService> operatorServiceProvider) {
         this.storageProcessor = storageProcessorProvider.getIfAvailable();
+        this.operatorService = operatorServiceProvider.getIfAvailable();
         Assert.notNull(storageProcessor, "无法注入GraceLogStorageProcessor接口实现类实例，请实现该接口.");
     }
 
@@ -68,7 +72,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
         Object result;
         boolean executionSucceed = true;
         try {
-            extractor = new GraceRecorderAnnotationDataExtractor(invocation);
+            extractor = new GraceRecorderAnnotationDataExtractor(invocation, this.operatorService);
             Map<String, Object> parameterValueMap = extractor.getParameterValues();
             ExpressionVariables variables = ExpressionVariables.initialize();
             variables.addVariables(parameterValueMap);
@@ -81,6 +85,9 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
         } finally {
             GraceCachedExpressionEvaluator evaluator = new GraceCachedExpressionEvaluator();
             ExpressionVariables variables = GraceRecordContext.popExpressionVariables();
+            if (!ObjectUtils.isEmpty(operatorService) && !ObjectUtils.isEmpty(operatorService.getExtra())) {
+                variables.addVariables(operatorService.getExtra());
+            }
             GraceEvaluationContext evaluationContext = evaluator.createEvaluationContext(variables);
             evaluationContext.setBeanResolver(this.beanFactoryResolver);
             AnnotatedElementKey elementKey = new AnnotatedElementKey(extractor.getSpecificMethod(), extractor.getTargetClass());

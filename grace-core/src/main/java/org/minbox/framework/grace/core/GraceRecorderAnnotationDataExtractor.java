@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.minbox.framework.grace.core.operator.GraceLoadOperatorService;
 import org.minbox.framework.grace.expression.annotation.GraceRecorder;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -34,8 +35,9 @@ public class GraceRecorderAnnotationDataExtractor {
     private Method specificMethod;
     private Object[] arguments;
     private Parameter[] parameters;
+    private GraceLoadOperatorService operatorService;
 
-    public GraceRecorderAnnotationDataExtractor(MethodInvocation invocation) {
+    public GraceRecorderAnnotationDataExtractor(MethodInvocation invocation, GraceLoadOperatorService operatorService) {
         this.graceRecorder = AnnotationUtils.getAnnotation(invocation.getMethod(), GraceRecorder.class);
         Assert.notNull(graceRecorder, "@GraceRecorder注解实例不可以为空.");
         this.targetClass = (invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null);
@@ -43,6 +45,7 @@ public class GraceRecorderAnnotationDataExtractor {
         this.specificMethod = ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
         this.arguments = invocation.getArguments();
         this.parameters = this.specificMethod.getParameters();
+        this.operatorService = operatorService;
     }
 
     /**
@@ -87,7 +90,13 @@ public class GraceRecorderAnnotationDataExtractor {
     }
 
     public String getOperator() {
-        return this.graceRecorder.operator();
+        String operator = this.graceRecorder.operator();
+        return ObjectUtils.isEmpty(operator) && !ObjectUtils.isEmpty(operatorService) ? operatorService.getOperatorName()
+                : operator;
+    }
+
+    public String getOperatorId() {
+        return !ObjectUtils.isEmpty(this.operatorService) ? this.operatorService.getOperatorId() : null;
     }
 
     public String getGeneratedLocation() {

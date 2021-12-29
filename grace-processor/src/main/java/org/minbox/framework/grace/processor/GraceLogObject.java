@@ -26,9 +26,13 @@ public class GraceLogObject {
      */
     private boolean executionSucceed;
     /**
-     * 日志所关联的操作人
+     * 日志所关联的操作人名称
      */
     private String operator;
+    /**
+     * 日志所关联的操作人编号
+     */
+    private String operatorId;
     /**
      * 日志所关联的业务编号
      */
@@ -42,7 +46,7 @@ public class GraceLogObject {
      * 日志生成的时间
      */
     private LocalDateTime time = LocalDateTime.now();
-    
+
     public static GraceLogObject initialize() {
         return new GraceLogObject();
     }

@@ -30,5 +30,7 @@ public interface GraceLoadOperatorService {
      * @return 扩展数据列表
      * @see org.minbox.framework.grace.expression.ExpressionVariables
      */
-    Map<String, Object> getExtra();
+    default Map<String, Object> getExtra() {
+        return null;
+    }
 }

@@ -54,7 +54,8 @@ public class GraceRecorderResolveProcessor {
             this.graceLogObject.setOperator(parsedOperator);
         }
         this.graceLogObject.setCategory(extractor.getCategory())
-                .setGeneratedLocation(extractor.getGeneratedLocation());
+                .setGeneratedLocation(extractor.getGeneratedLocation())
+                .setOperatorId(extractor.getOperatorId());
         return this.graceLogObject;
     }
 }
