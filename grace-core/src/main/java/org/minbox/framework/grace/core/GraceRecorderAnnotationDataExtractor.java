@@ -16,6 +16,8 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.minbox.framework.grace.core.GraceConstants.LOG_GENERATED_LOCATION_FORMAT;
+
 /**
  * {@link GraceRecorder}注解数据提取者
  * <p>
@@ -82,5 +84,13 @@ public class GraceRecorderAnnotationDataExtractor {
 
     public String getConditionExpression() {
         return this.graceRecorder.condition();
+    }
+
+    public String getOperator() {
+        return this.graceRecorder.operator();
+    }
+
+    public String getGeneratedLocation() {
+        return String.format(LOG_GENERATED_LOCATION_FORMAT, targetClass.getName(), specificMethod.getName());
     }
 }

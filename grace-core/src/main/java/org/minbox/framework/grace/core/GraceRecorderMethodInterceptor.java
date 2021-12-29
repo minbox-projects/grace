@@ -10,11 +10,14 @@ import org.minbox.framework.grace.expression.GraceEvaluationContext;
 import org.minbox.framework.grace.expression.GraceRecordContext;
 import org.minbox.framework.grace.expression.annotation.GraceRecorder;
 import org.minbox.framework.grace.processor.GraceLogObject;
+import org.minbox.framework.grace.processor.GraceLogStorageProcessor;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.context.expression.BeanFactoryResolver;
+import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
@@ -34,6 +37,12 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
      */
     public static final String BEAN_NAME = GraceRecorderMethodInterceptor.class.getSimpleName();
     private BeanFactoryResolver beanFactoryResolver;
+    private GraceLogStorageProcessor storageProcessor;
+
+    public GraceRecorderMethodInterceptor(ObjectProvider<GraceLogStorageProcessor> storageProcessorProvider) {
+        this.storageProcessor = storageProcessorProvider.getIfAvailable();
+        Assert.notNull(storageProcessor, "无法注入GraceLogStorageProcessor接口实现类实例，请实现该接口.");
+    }
 
     /**
      * 执行目标方法切面业务逻辑处理
@@ -82,7 +91,8 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             if (conditionExecute) {
                 GraceRecorderResolveProcessor resolveProcessor =
                         new GraceRecorderResolveProcessor(extractor, evaluator, evaluationContext, elementKey, executionSucceed);
-                resolveProcessor.processing();
+                GraceLogObject graceLogObject = resolveProcessor.processing();
+                storageProcessor.storage(graceLogObject);
             }
         }
         return result;

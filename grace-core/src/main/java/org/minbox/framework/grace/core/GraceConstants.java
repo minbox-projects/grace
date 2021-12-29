@@ -16,4 +16,8 @@ public interface GraceConstants {
      * 定义方法参数索引值在{@link ExpressionVariables}变量集合的格式
      */
     String PARAMETER_INDEX_VALUE_FORMAT = "p%d";
+    /**
+     * 日志产生位置的格式
+     */
+    String LOG_GENERATED_LOCATION_FORMAT = "%s#%s";
 }
