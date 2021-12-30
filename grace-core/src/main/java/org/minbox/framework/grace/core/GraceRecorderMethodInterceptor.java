@@ -75,6 +75,9 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             extractor = new GraceRecorderAnnotationDataExtractor(invocation, this.operatorService);
             Map<String, Object> parameterValueMap = extractor.getParameterValues();
             ExpressionVariables variables = ExpressionVariables.initialize();
+            if (!ObjectUtils.isEmpty(operatorService) && !ObjectUtils.isEmpty(operatorService.getExtra())) {
+                variables.addVariables(operatorService.getExtra());
+            }
             variables.addVariables(parameterValueMap);
             GraceRecordContext.pushExpressionVariables(variables);
             result = invocation.proceed();
@@ -90,9 +93,6 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             GraceVariableContext.remove();
             GraceCachedExpressionEvaluator evaluator = new GraceCachedExpressionEvaluator();
             ExpressionVariables variables = GraceRecordContext.popExpressionVariables();
-            if (!ObjectUtils.isEmpty(operatorService) && !ObjectUtils.isEmpty(operatorService.getExtra())) {
-                variables.addVariables(operatorService.getExtra());
-            }
             GraceEvaluationContext evaluationContext = evaluator.createEvaluationContext(variables);
             evaluationContext.setBeanResolver(this.beanFactoryResolver);
             AnnotatedElementKey elementKey = new AnnotatedElementKey(extractor.getSpecificMethod(), extractor.getTargetClass());
