@@ -69,6 +69,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         GraceRecorderAnnotationDataExtractor extractor = null;
+        Map<String, Object> customizeVariables = null;
         Object result;
         boolean executionSucceed = true;
         try {
@@ -81,7 +82,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             variables.addVariables(parameterValueMap);
             GraceRecordContext.pushExpressionVariables(variables);
             result = invocation.proceed();
-            Map<String, Object> customizeVariables = GraceVariableContext.getCustomizeVariables();
+            customizeVariables = GraceVariableContext.getCustomizeVariables();
             if (!ObjectUtils.isEmpty(customizeVariables)) {
                 variables.addVariables(customizeVariables);
             }
@@ -102,7 +103,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             }
             if (conditionExecute) {
                 GraceRecorderResolveProcessor resolveProcessor =
-                        new GraceRecorderResolveProcessor(extractor, evaluator, evaluationContext, elementKey, executionSucceed);
+                        new GraceRecorderResolveProcessor(extractor, evaluator, evaluationContext, elementKey, executionSucceed, customizeVariables);
                 GraceLogObject graceLogObject = resolveProcessor.processing();
                 storageProcessor.storage(graceLogObject);
             }
