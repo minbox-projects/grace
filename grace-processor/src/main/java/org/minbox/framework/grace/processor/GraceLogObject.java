@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 日志对象类
@@ -17,6 +18,10 @@ public class GraceLogObject {
      * 日志所属分组
      */
     private String category;
+    /**
+     * 日志标签列表
+     */
+    private String[] tags;
     /**
      * 解析后的日志内容
      */
@@ -46,6 +51,12 @@ public class GraceLogObject {
      * 日志生成的时间
      */
     private LocalDateTime time = LocalDateTime.now();
+    /**
+     * 自定义的变量集合
+     * <p>
+     * 可用于扩展操作日志存储时所需要的数据
+     */
+    private Map<String, Object> customizeVariables;
 
     public static GraceLogObject initialize() {
         return new GraceLogObject();

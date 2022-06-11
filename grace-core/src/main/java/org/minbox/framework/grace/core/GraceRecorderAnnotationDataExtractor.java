@@ -85,6 +85,10 @@ public class GraceRecorderAnnotationDataExtractor {
         return this.graceRecorder.category();
     }
 
+    public String[] getTags() {
+        return this.graceRecorder.tags();
+    }
+
     public String getConditionExpression() {
         return this.graceRecorder.condition();
     }

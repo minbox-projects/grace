@@ -11,6 +11,8 @@ import org.minbox.framework.grace.processor.GraceLogObject;
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Map;
+
 /**
  * 操作日志内容解析处理类
  * <p>
@@ -27,9 +29,11 @@ public class GraceRecorderResolveProcessor {
     private GraceEvaluationContext evaluationContext;
     private AnnotatedElementKey elementKey;
     private boolean executionSucceed;
+    private Map<String, Object> customizeVariables;
 
     public GraceRecorderResolveProcessor(GraceRecorderAnnotationDataExtractor extractor, GraceCachedExpressionEvaluator evaluator,
-                                         GraceEvaluationContext evaluationContext, AnnotatedElementKey elementKey, boolean executionSucceed) {
+                                         GraceEvaluationContext evaluationContext, AnnotatedElementKey elementKey,
+                                         boolean executionSucceed, Map<String, Object> customizeVariables) {
         this.extractor = extractor;
         this.graceLogObject = GraceLogObject.initialize();
         this.graceLogObject.setExecutionSucceed(executionSucceed);
@@ -37,6 +41,7 @@ public class GraceRecorderResolveProcessor {
         this.evaluationContext = evaluationContext;
         this.elementKey = elementKey;
         this.executionSucceed = executionSucceed;
+        this.customizeVariables = customizeVariables;
     }
 
     public GraceLogObject processing() {
@@ -53,9 +58,13 @@ public class GraceRecorderResolveProcessor {
             String parsedOperator = evaluator.parseExpression(String.class, extractor.getOperator(), elementKey, evaluationContext);
             this.graceLogObject.setOperator(parsedOperator);
         }
+        if (!ObjectUtils.isEmpty(extractor.getTags())) {
+            this.graceLogObject.setTags(extractor.getTags());
+        }
         this.graceLogObject.setCategory(extractor.getCategory())
                 .setGeneratedLocation(extractor.getGeneratedLocation())
-                .setOperatorId(extractor.getOperatorId());
+                .setOperatorId(extractor.getOperatorId())
+                .setCustomizeVariables(this.customizeVariables);
         return this.graceLogObject;
     }
 }
