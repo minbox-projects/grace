@@ -12,6 +12,7 @@ import org.minbox.framework.grace.expression.GraceRecordContext;
 import org.minbox.framework.grace.expression.annotation.GraceRecorder;
 import org.minbox.framework.grace.processor.GraceLogObject;
 import org.minbox.framework.grace.processor.GraceLogStorageProcessor;
+import org.minbox.framework.util.StackTraceUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -72,6 +73,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
         Map<String, Object> customizeVariables = null;
         Object result;
         boolean executionSucceed = true;
+        String exceptionStackTrace = null;
         try {
             extractor = new GraceRecorderAnnotationDataExtractor(invocation, this.operatorService);
             Map<String, Object> parameterValueMap = extractor.getParameterValues();
@@ -89,6 +91,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             variables.addVariable(GraceConstants.RESULT_VARIABLE_KEY, result);
         } catch (Exception e) {
             executionSucceed = false;
+            exceptionStackTrace = StackTraceUtil.getStackTrace(e);
             throw e;
         } finally {
             GraceVariableContext.remove();
@@ -105,6 +108,7 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
                 GraceRecorderResolveProcessor resolveProcessor =
                         new GraceRecorderResolveProcessor(extractor, evaluator, evaluationContext, elementKey, executionSucceed, customizeVariables);
                 GraceLogObject graceLogObject = resolveProcessor.processing();
+                graceLogObject.setExceptionStackTrace(exceptionStackTrace);
                 storageProcessor.storage(graceLogObject);
             }
         }

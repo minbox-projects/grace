@@ -52,6 +52,10 @@ public class GraceLogObject {
      */
     private LocalDateTime time = LocalDateTime.now();
     /**
+     * 执行目标操作方法遇到异常时的堆栈信息
+     */
+    private String exceptionStackTrace;
+    /**
      * 自定义的变量集合
      * <p>
      * 可用于扩展操作日志存储时所需要的数据
