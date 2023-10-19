@@ -94,6 +94,8 @@ public class GraceRecorderMethodInterceptor implements MethodInterceptor, BeanFa
             exceptionStackTrace = StackTraceUtil.getStackTrace(e);
             throw e;
         } finally {
+            // 如果执行目标方法遇到了异常，把遇到异常之前设置的自定义变量读取出来
+            customizeVariables = ObjectUtils.isEmpty(customizeVariables) ? GraceVariableContext.getCustomizeVariables() : customizeVariables;
             GraceVariableContext.remove();
             GraceCachedExpressionEvaluator evaluator = new GraceCachedExpressionEvaluator();
             ExpressionVariables variables = GraceRecordContext.popExpressionVariables();
