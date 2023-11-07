@@ -21,7 +21,7 @@
     </modules>
 
     <properties>
-        <revision>1.0.2-SNAPSHOT</revision>
+        <revision>1.0.2</revision>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.test.skip>true</maven.test.skip>
